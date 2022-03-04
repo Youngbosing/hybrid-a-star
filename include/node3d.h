@@ -34,6 +34,8 @@ public:
         this->prim = prim;
     }
 
+    float getDist(const Node3D& node);
+
     // GETTER METHODS
     /// get the x position
     float getX() const

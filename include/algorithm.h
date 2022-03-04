@@ -8,6 +8,7 @@
 
 typedef ompl::base::SE2StateSpace::StateType State;
 
+#include "astar_builder.h"
 #include "collisiondetection.h"
 #include "node2d.h"
 #include "node3d.h"
@@ -48,6 +49,8 @@ public:
     static Node3D* hybridAStar(Node3D& start, const Node3D& goal, Node3D* nodes3D, Node2D* nodes2D, int width,
                                int height, CollisionDetection& configurationSpace, float* dubinsLookup,
                                Visualize& visualization);
+
+    void InitParam();
 };
 }  // namespace HybridAStar
 #endif  // ALGORITHM_H

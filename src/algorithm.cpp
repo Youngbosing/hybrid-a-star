@@ -1,6 +1,11 @@
 #include "algorithm.h"
 
 #include <boost/heap/binomial_heap.hpp>
+#include <fstream>
+#include <iostream>
+#include <string>
+
+#include "yaml-cpp/yaml.h"
 
 using namespace HybridAStar;
 
@@ -30,6 +35,12 @@ struct CompareNodes
     }
 };
 
+void Algorithm::InitParam()
+{
+    std::string file = "/home/holo/catkin_ws/src/hybrid_a_star/hybrid-a-star/param/expand.yaml";
+    GetParam::getparam(file);
+}
+
 //###################################################
 //                                        3D A*
 //###################################################
@@ -37,6 +48,11 @@ Node3D* Algorithm::hybridAStar(Node3D& start, const Node3D& goal, Node3D* nodes3
                                int height, CollisionDetection& configurationSpace, float* dubinsLookup,
                                Visualize& visualization)
 {
+    YAML::Node node = YAML::LoadFile("/home/holo/test/testyaml/test.yaml");
+    int        age  = node["age"].as<int>();
+    ofstream   outy("/home/holo/test/test.txt");
+    outy << age << std::endl;
+    outy.close();
     // PREDECESSOR AND SUCCESSOR INDEX
     int   iPred, iSucc;
     float newG;
@@ -165,7 +181,8 @@ Node3D* Algorithm::hybridAStar(Node3D& start, const Node3D& goal, Node3D* nodes3
             {
                 // _______________________
                 // SEARCH WITH DUBINS SHOT
-                if (Constants::dubinsShot && nPred->isInRange(goal) && nPred->getPrim() < 3)
+                if (Constants::dubinsShot && nPred->getDist(goal) < 5 && nPred->isInRange(goal) &&
+                    (nPred->getPrim() < 3 || nPred->getPrim() == 6))
                 {
                     nSucc = dubinsShot(*nPred, goal, configurationSpace);
 

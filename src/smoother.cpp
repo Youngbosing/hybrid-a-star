@@ -5,10 +5,10 @@ using namespace HybridAStar;
 //###################################################
 inline bool isCusp(const std::vector<Node3D>& path, int i)
 {
-    bool revim2 = path[i - 2].getPrim() > 3;
-    bool revim1 = path[i - 1].getPrim() > 3;
-    bool revi   = path[i].getPrim() > 3;
-    bool revip1 = path[i + 1].getPrim() > 3;
+    bool revim2 = (path[i - 2].getPrim() > 3 && path[i - 2].getPrim() != 6);
+    bool revim1 = (path[i - 1].getPrim() > 3 && path[i - 1].getPrim() != 6);
+    bool revi   = (path[i].getPrim() > 3 && path[i].getPrim() != 6);
+    bool revip1 = (path[i + 1].getPrim() > 3 && path[i + 1].getPrim() != 6);
     //  bool revip2 = path[i + 2].getPrim() > 3 ;
 
     return (revim2 != revim1 || revim1 != revi || revi != revip1);

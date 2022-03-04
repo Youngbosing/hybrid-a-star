@@ -11,9 +11,9 @@ const int Node3D::dir = 3;
 // const float Node3D::dt[] = { 0,         0.10472,   -0.10472};
 
 // R = 6, 6.75 DEG
-const float Node3D::dy[] = {0, -0.0415893, 0.0415893};
-const float Node3D::dx[] = {0.7068582, 0.705224, 0.705224};
-const float Node3D::dt[] = {0, 0.1178097, -0.1178097};
+const float Node3D::dy[] = {0, -0.0415893, 0.0415893, 0};
+const float Node3D::dx[] = {1.4, 0.705224, 0.705224, 1.4};  //{0.7068582, 0.705224, 0.705224, 1.4};
+const float Node3D::dt[] = {0, 0.1178097, -0.1178097, 0};
 
 // R = 3, 6.75 DEG
 // const float Node3D::dy[] = { 0,        -0.0207946, 0.0207946};
@@ -31,6 +31,13 @@ bool Node3D::isOnGrid(const int width, const int height) const
 {
     return x >= 0 && x < width && y >= 0 && y < height && (int)(t / Constants::deltaHeadingRad) >= 0 &&
            (int)(t / Constants::deltaHeadingRad) < Constants::headings;
+}
+
+float Node3D::getDist(const Node3D& node)
+{
+    float dx = node.getX() - this->getX();
+    float dy = node.getY() - this->getY();
+    return sqrtf(dx * dx + dy * dy);
 }
 
 //###################################################
@@ -54,7 +61,7 @@ Node3D* Node3D::createSuccessor(const int i)
     float tSucc;
 
     // calculate successor positions forward
-    if (i < 3)
+    if (i < 3 || i == 6)
     {
         xSucc = x + dx[i] * cos(t) - dy[i] * sin(t);
         ySucc = y + dx[i] * sin(t) + dy[i] * cos(t);
@@ -96,6 +103,10 @@ void Node3D::updateG()
         {
             g += dx[0];
         }
+    }
+    else if (prim == 6)
+    {
+        g += dx[3];
     }
     // reverse driving
     else

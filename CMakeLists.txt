@@ -33,6 +33,7 @@ set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/dubins.cpp #Andrew Walker
     ${CMAKE_CURRENT_SOURCE_DIR}/src/dynamicvoronoi.cpp #Boris Lau, Christoph Sprunk, Wolfram Burgard
     ${CMAKE_CURRENT_SOURCE_DIR}/src/bucketedqueue.cpp #Boris Lau, Christoph Sprunk, Wolfram Burgard
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/astar_builder.cpp
     )
 set(HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/include/algorithm.h
@@ -52,7 +53,8 @@ set(HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/include/dynamicvoronoi.h #Boris Lau, Christoph Sprunk, Wolfram Burgard
     ${CMAKE_CURRENT_SOURCE_DIR}/include/bucketedqueue.h #Boris Lau, Christoph Sprunk, Wolfram Burgard
     ${CMAKE_CURRENT_SOURCE_DIR}/include/point.h #Boris Lau, Christoph Sprunk, Wolfram Burgard
-
+    #${CMAKE_CURRENT_SOURCE_DIR}/include/astar_builder.h
+    #${CMAKE_CURRENT_SOURCE_DIR}/include/astar_param.h
     )
 add_library(HYAS ${SOURCES} ${HEADERS})
 
@@ -76,6 +78,8 @@ target_link_libraries(tf_broadcaster ${catkin_LIBRARIES})
 add_executable(hybrid_astar src/main.cpp ${HEADERS} ${SOURCES})
 target_link_libraries(hybrid_astar ${catkin_LIBRARIES})
 target_link_libraries(hybrid_astar ${OMPL_LIBRARIES})
+target_link_libraries(hybrid_astar /usr/local/lib/libyaml-cpp.a)
+
 
 install(TARGETS ${PROJECT_NAME} tf_broadcaster
     ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
