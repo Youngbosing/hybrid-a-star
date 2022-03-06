@@ -25,6 +25,16 @@ const float Node3D::dt[] = {0, 0.1178097, -0.1178097};
 // const float Node3D::dt[] = { 0,       0.2356194,   -0.2356194};
 
 //###################################################
+//                                         GET DIST
+//###################################################
+float Node3D::getDist(const Node3D& node)
+{
+    float xtemp = node.getX() - x;
+    float ytemp = node.getY() - y;
+    return sqrtf(xtemp * xtemp + ytemp * ytemp);
+}
+
+//###################################################
 //                                         IS ON GRID
 //###################################################
 bool Node3D::isOnGrid(const int width, const int height) const
@@ -71,21 +81,31 @@ Node3D* Node3D::createSuccessor(const int i)
     return new Node3D(xSucc, ySucc, tSucc, g, 0, this, i);
 }
 
+Node3D* Node3D::new_createSuccessor(const int i)
+{
+    float xSucc = x + delta_x_[i] * cos(t) - delta_y_[i] * sin(t);
+    float ySucc = y + delta_x_[i] * sin(t) + delta_y_[i] * cos(t);
+    float tSucc = Helper::normalizeHeadingRad(t + delta_t_[i]);
+
+    return new Node3D(xSucc, ySucc, tSucc, g, 0, this, i);
+}
+
 //###################################################
 //                                      MOVEMENT COST
 //###################################################
 void Node3D::updateG()
 {
     // forward driving
-    if (prim < 3)
+    if (prim < forward_size_)
     {
-        // penalize turning
-        if (pred->prim != prim)
+        // penalize turning  目的是维持上一时刻的姿态
+        if (pred->prim != prim)  // TBD 如果节点分层拓展会有方向重合的情况
         {
             // penalize change of direction
-            if (pred->prim > 2)
+            if (pred->prim >= forward_size_)
             {
-                g += dx[0] * Constants::penaltyTurning * Constants::penaltyCOD;
+                g += dx[0] * Constants::penaltyTurning *
+                     Constants::penaltyCOD;  // TBD 不能 ＋dx[0]，需要根据实际的距离确定值
             }
             else
             {
@@ -94,7 +114,7 @@ void Node3D::updateG()
         }
         else
         {
-            g += dx[0];
+            g += dx[0];  // TBD 根据距离取合适的值
         }
     }
     // reverse driving
@@ -104,18 +124,19 @@ void Node3D::updateG()
         if (pred->prim != prim)
         {
             // penalize change of direction
-            if (pred->prim < 3)
+            if (pred->prim < forward_size_)
             {
-                g += dx[0] * Constants::penaltyTurning * Constants::penaltyReversing * Constants::penaltyCOD;
+                g += dx[0] * Constants::penaltyTurning * Constants::penaltyReversing *
+                     Constants::penaltyCOD;  // TBD 同上
             }
             else
             {
-                g += dx[0] * Constants::penaltyTurning * Constants::penaltyReversing;
+                g += dx[0] * Constants::penaltyTurning * Constants::penaltyReversing;  // TBD
             }
         }
         else
         {
-            g += dx[0] * Constants::penaltyReversing;
+            g += dx[0] * Constants::penaltyReversing;  // TBD
         }
     }
 }

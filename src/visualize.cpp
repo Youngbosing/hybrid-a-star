@@ -45,7 +45,7 @@ void Visualize::publishNode3DPose(Node3D& node)
     pose.pose.position.y = node.getY() * Constants::cellSize;
 
     // FORWARD
-    if (node.getPrim() < 3)
+    if (node.getPrim() < Node3D::forward_size_)
     {
         pose.pose.orientation = tf::createQuaternionMsgFromYaw(node.getT());
     }
@@ -69,7 +69,7 @@ void Visualize::publishNode3DPoses(Node3D& node)
     pose.position.y = node.getY() * Constants::cellSize;
 
     // FORWARD
-    if (node.getPrim() < 3)
+    if (node.getPrim() < Node3D::forward_size_)
     {
         pose.orientation = tf::createQuaternionMsgFromYaw(node.getT());
         poses3D.poses.push_back(pose);

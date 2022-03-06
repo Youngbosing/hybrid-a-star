@@ -3,15 +3,30 @@ using namespace HybridAStar;
 //###################################################
 //                                     CUSP DETECTION
 //###################################################
-inline bool isCusp(const std::vector<Node3D>& path, int i)
+inline bool isCusp(const std::vector<Node3D>& path, int i)  // TBD 判断路径中尖点逻辑
 {
-    bool revim2 = path[i - 2].getPrim() > 3;
-    bool revim1 = path[i - 1].getPrim() > 3;
-    bool revi   = path[i].getPrim() > 3;
-    bool revip1 = path[i + 1].getPrim() > 3;
-    //  bool revip2 = path[i + 2].getPrim() > 3 ;
+    // 可用替代逻辑：
+    // 先根据prim判断前后方向
+    // 再判断两个点的前后方向是否一致   这样值用判断 i 和 i-1
 
-    return (revim2 != revim1 || revim1 != revi || revi != revip1);
+    bool temp1 = path[i - 2].getPrim() < Node3D::forward_size_;
+    bool temp2 = path[i - 1].getPrim() < Node3D::forward_size_;
+    bool temp3 = path[i].getPrim() < Node3D::forward_size_;
+    bool temp4 = path[i + 1].getPrim() < Node3D::forward_size_;
+
+    return (temp1 != temp2 || temp2 != temp3 || temp3 != temp4);
+
+    //************************************************************
+    //***************   pre logic  *******************************
+    // bool revim2 = path[i - 2].getPrim() > 3;
+    // bool revim1 = path[i - 1].getPrim() > 3;
+    // bool revi   = path[i].getPrim() > 3;
+    // bool revip1 = path[i + 1].getPrim() > 3;
+    // //  bool revip2 = path[i + 2].getPrim() > 3 ;
+
+    // return (revim2 != revim1 || revim1 != revi || revi != revip1);
+    //**************************************************************
+    //**************************************************************
 }
 //###################################################
 //                                SMOOTHING ALGORITHM

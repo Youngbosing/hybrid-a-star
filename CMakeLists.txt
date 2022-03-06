@@ -76,6 +76,7 @@ target_link_libraries(tf_broadcaster ${catkin_LIBRARIES})
 add_executable(hybrid_astar src/main.cpp ${HEADERS} ${SOURCES})
 target_link_libraries(hybrid_astar ${catkin_LIBRARIES})
 target_link_libraries(hybrid_astar ${OMPL_LIBRARIES})
+target_link_libraries(hybrid_astar /usr/local/lib/libyaml-cpp.a)
 
 install(TARGETS ${PROJECT_NAME} tf_broadcaster
     ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

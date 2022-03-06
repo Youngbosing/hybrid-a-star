@@ -1,6 +1,10 @@
 #include "algorithm.h"
 
 #include <boost/heap/binomial_heap.hpp>
+#include <vector>
+
+#include "fstream"
+#include "yaml-cpp/yaml.h"
 
 using namespace HybridAStar;
 
@@ -30,6 +34,15 @@ struct CompareNodes
     }
 };
 
+int                Node3D::succ_size_     = 6;
+int                Node3D::forward_size_  = 3;
+int                Node3D::backward_size_ = 3;
+std::vector<float> Node3D::delta_x_       = {1, 2};
+std::vector<float> Node3D::delta_y_       = {1, 2};
+std::vector<float> Node3D::step_size_     = {1, 2};
+std::vector<float> Node3D::delta_t_edg_   = {1, 2};
+std::vector<float> Node3D::delta_t_       = {1, 2};
+
 //###################################################
 //                                        3D A*
 //###################################################
@@ -37,6 +50,54 @@ Node3D* Algorithm::hybridAStar(Node3D& start, const Node3D& goal, Node3D* nodes3
                                int height, CollisionDetection& configurationSpace, float* dubinsLookup,
                                Visualize& visualization)
 {
+    // DEBUG
+    ofstream debugout("/home/holo/catkin_ws/debug/debug.txt", ios::app);
+    // debugout << "x"
+    //          << "\t"
+    //          << "X"
+    //          << "\t"
+    //          << "iX"
+    //          << "y"
+    //          << "\t"
+    //          << "Y"
+    //          << "\t"
+    //          << "iY" << std::endl;
+
+    // init config
+    {
+        YAML::Node param = YAML::LoadFile("/home/holo/catkin_ws/src/hybrid-a-star/param/param.yaml");
+
+        Node3D::succ_size_     = param["succ_size"].as<int>();
+        Node3D::forward_size_  = param["forward_size"].as<int>();
+        Node3D::backward_size_ = param["backward_size"].as<int>();
+        Node3D::delta_x_       = param["delta_x"].as<std::vector<float>>();
+        Node3D::delta_y_       = param["delta_y"].as<std::vector<float>>();
+        Node3D::delta_t_       = param["delta_t_rad"].as<std::vector<float>>();
+
+        Node3D::step_size_   = param["step_size"].as<std::vector<float>>();
+        Node3D::delta_t_edg_ = param["delta_t_edg"].as<std::vector<float>>();
+
+        for (int i = 0; i < Node3D::succ_size_; ++i)
+        {
+            Node3D::step_size_[i] *= 0.1178097;
+            if (i < Node3D::forward_size_)
+            {
+                Node3D::delta_t_[i] = Node3D::delta_t_edg_[i] * M_PI / 180;
+                Node3D::delta_x_[i] = Node3D::step_size_[i] * fabs(cos(Node3D::delta_t_[i]));
+                Node3D::delta_y_[i] = (-1) * Node3D::step_size_[i] * sin(Node3D::delta_t_[i]);
+            }
+            else
+            {
+                Node3D::delta_t_[i] = Node3D::delta_t_edg_[i] / 180 * M_PI;
+                Node3D::delta_x_[i] = Node3D::step_size_[i] * fabs(cos(Node3D::delta_t_[i])) * (-1);
+                Node3D::delta_y_[i] = Node3D::step_size_[i] * sin(Node3D::delta_t_[i]);
+            }
+            // debug
+            debugout << Node3D::delta_y_[i] << "\t" << Node3D::delta_x_[i] << "\t" << Node3D::delta_t_[i] << std::endl;
+        }
+        debugout.close();
+    }
+
     // PREDECESSOR AND SUCCESSOR INDEX
     int   iPred, iSucc;
     float newG;
@@ -133,6 +194,16 @@ Node3D* Algorithm::hybridAStar(Node3D& start, const Node3D& goal, Node3D* nodes3
             d.sleep();
         }
 
+        // debug
+        // float x1 = nPred->getX();
+        // float y1 = nPred->getY();
+        // int   X  = (int)x1;
+        // int   Y  = (int)y1;
+        // int   iX = (int)((x1 - (long)x1) * Constants::positionResolution);  //得出X方向在cell中的偏移量
+        // int   iY = (int)((y1 - (long)y1) * Constants::positionResolution);  // Y方向在cell中的偏移量
+        // debugout << x1 << "\t" << (long)x1 << "\t" << X << "\t" << iX << "\t" << y1 << "\t" << (long)y1 << "\t" << Y
+        //          << "\t" << iY << std::endl;
+
         // _____________________________
         // LAZY DELETION of rewired node
         // if there exists a pointer this node has already been expanded
@@ -165,7 +236,8 @@ Node3D* Algorithm::hybridAStar(Node3D& start, const Node3D& goal, Node3D* nodes3
             {
                 // _______________________
                 // SEARCH WITH DUBINS SHOT
-                if (Constants::dubinsShot && nPred->isInRange(goal) && nPred->getPrim() < 3)
+                if (Constants::dubinsShot && nPred->getDist(goal) < 5 && nPred->isInRange(goal) &&
+                    nPred->getPrim() < Node3D::forward_size_)
                 {
                     nSucc = dubinsShot(*nPred, goal, configurationSpace);
 
@@ -179,10 +251,11 @@ Node3D* Algorithm::hybridAStar(Node3D& start, const Node3D& goal, Node3D* nodes3
 
                 // ______________________________
                 // SEARCH WITH FORWARD SIMULATION
-                for (int i = 0; i < dir; i++)
+                for (int i = 0; i < Node3D::succ_size_; i++)
                 {
                     // create possible successor
-                    nSucc = nPred->createSuccessor(i);
+                    // nSucc = nPred->createSuccessor(i);
+                    nSucc = nPred->new_createSuccessor(i);
                     // set index of the successor
                     iSucc = nSucc->setIdx(width, height);
 

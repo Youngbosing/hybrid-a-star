@@ -2,6 +2,7 @@
 #define NODE3D_H
 
 #include <cmath>
+#include <vector>
 
 #include "constants.h"
 #include "helper.h"
@@ -33,6 +34,8 @@ public:
         this->idx  = -1;
         this->prim = prim;
     }
+
+    float getDist(const Node3D& node);
 
     // GETTER METHODS
     /// get the x position
@@ -161,6 +164,8 @@ public:
     /// Creates a successor in the continous space.
     Node3D* createSuccessor(const int i);
 
+    Node3D* new_createSuccessor(const int i);
+
     // CONSTANT VALUES
     /// Number of possible directions
     static const int dir;
@@ -192,6 +197,16 @@ private:
     int prim;
     /// the predecessor pointer
     const Node3D* pred;
+
+public:
+    static int                succ_size_;
+    static int                forward_size_;
+    static int                backward_size_;
+    static std::vector<float> delta_x_;
+    static std::vector<float> delta_y_;
+    static std::vector<float> delta_t_;
+    static std::vector<float> step_size_;
+    static std::vector<float> delta_t_edg_;
 };
 }  // namespace HybridAStar
 #endif  // NODE3D_H
