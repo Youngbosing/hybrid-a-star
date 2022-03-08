@@ -227,7 +227,7 @@ void Planner::plan()
         smoothedPath.clear();
         // FIND THE PATH
         Node3D* nSolution = Algorithm::hybridAStar(nStart, nGoal, nodes3D, nodes2D, width, height, configurationSpace,
-                                                   dubinsLookup, visualization);
+                                                   dubinsLookup, visualization, voronoiDiagram);
         // TRACE THE PATH
         smoother.tracePath(nSolution);
         // CREATE THE UPDATED PATH

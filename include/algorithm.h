@@ -9,6 +9,7 @@
 typedef ompl::base::SE2StateSpace::StateType State;
 
 #include "collisiondetection.h"
+#include "dynamicvoronoi.h"
 #include "node2d.h"
 #include "node3d.h"
 #include "visualize.h"
@@ -47,14 +48,7 @@ public:
     */
     static Node3D* hybridAStar(Node3D& start, const Node3D& goal, Node3D* nodes3D, Node2D* nodes2D, int width,
                                int height, CollisionDetection& configurationSpace, float* dubinsLookup,
-                               Visualize& visualization);
-
-    // static int                succ_size_;
-    // static int                forward_size_;
-    // static int                backward_size_;
-    // static std::vector<float> delta_x_;
-    // static std::vector<float> delta_y_;
-    // static std::vector<float> delta_t_;
+                               Visualize& visualization, DynamicVoronoi& voronoi);
 };
 }  // namespace HybridAStar
 

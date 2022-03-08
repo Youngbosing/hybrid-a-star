@@ -81,6 +81,7 @@ Node3D* Node3D::createSuccessor(const int i)
     return new Node3D(xSucc, ySucc, tSucc, g, 0, this, i);
 }
 
+// 新 创建子节点
 Node3D* Node3D::new_createSuccessor(const int i)
 {
     float xSucc = x + delta_x_[i] * cos(t) - delta_y_[i] * sin(t);
@@ -90,10 +91,40 @@ Node3D* Node3D::new_createSuccessor(const int i)
     return new Node3D(xSucc, ySucc, tSucc, g, 0, this, i);
 }
 
+// create succ by step size  根据到障碍物距离算出的步长为基础，向不同方向拓展时再乘一个系数
+Node3D* Node3D::dist_createSuccessor(const int i, float step_size)
+{
+    if (change_step_)  //将步长乘一个系数
+    {
+        step_size *= coef_[i];
+    }
+
+    float delta_x, delta_y, delta_t;
+    if (i < forward_size_)
+    {
+        delta_t = max_front_wheel_angle_ - (2 * max_front_wheel_angle_ / (forward_size_ - 1)) * i;
+        delta_x = step_size * fabs(cos(delta_t));
+        delta_y = (-1) * step_size * sin(delta_t);
+    }
+    else
+    {
+        delta_t =
+            (-1) * max_front_wheel_angle_ + (2 * max_front_wheel_angle_ / (forward_size_ - 1)) * (i - forward_size_);
+        delta_x = step_size * fabs(cos(delta_t)) * (-1);
+        delta_y = step_size * sin(delta_t);
+    }
+
+    float xSucc = x + delta_x * cos(t) - delta_y * sin(t);
+    float ySucc = y + delta_x * sin(t) + delta_y * cos(t);
+    float tSucc = Helper::normalizeHeadingRad(t + delta_t);
+
+    return new Node3D(xSucc, ySucc, tSucc, g, 0, this, i);
+}
+
 //###################################################
 //                                      MOVEMENT COST
 //###################################################
-void Node3D::updateG()
+void Node3D::updateG(float step_size)
 {
     // forward driving
     if (prim < forward_size_)
@@ -104,17 +135,17 @@ void Node3D::updateG()
             // penalize change of direction
             if (pred->prim >= forward_size_)
             {
-                g += dx[0] * Constants::penaltyTurning *
-                     Constants::penaltyCOD;  // TBD 不能 ＋dx[0]，需要根据实际的距离确定值
+                g += (step_size * Constants::penaltyTurning *
+                      Constants::penaltyCOD);  // TBD 不能 ＋dx[0]，需要根据实际的距离确定值
             }
             else
             {
-                g += dx[0] * Constants::penaltyTurning;
+                g += (step_size * Constants::penaltyTurning);
             }
         }
         else
         {
-            g += dx[0];  // TBD 根据距离取合适的值
+            g += step_size;  // TBD 根据距离取合适的值
         }
     }
     // reverse driving
@@ -126,17 +157,17 @@ void Node3D::updateG()
             // penalize change of direction
             if (pred->prim < forward_size_)
             {
-                g += dx[0] * Constants::penaltyTurning * Constants::penaltyReversing *
-                     Constants::penaltyCOD;  // TBD 同上
+                g += (step_size * Constants::penaltyTurning * Constants::penaltyReversing *
+                      Constants::penaltyCOD);  // TBD 同上
             }
             else
             {
-                g += dx[0] * Constants::penaltyTurning * Constants::penaltyReversing;  // TBD
+                g += (step_size * Constants::penaltyTurning * Constants::penaltyReversing);  // TBD
             }
         }
         else
         {
-            g += dx[0] * Constants::penaltyReversing;  // TBD
+            g += (step_size * Constants::penaltyReversing);  // TBD
         }
     }
 }
@@ -231,7 +262,8 @@ void Node3D::updateG()
 //    // create a 2d goal node
 //    Node2D goal2d(goal.x, goal.y, 0, 0, nullptr);
 //    // run 2d astar and return the cost of the cheapest path for that node
-//    nodes2D[(int)y * grid->info.width + (int)x].setG(Algorithm::aStar(goal2d, start2d, grid, nodes2D, visualization));
+//    nodes2D[(int)y * grid->info.width + (int)x].setG(Algorithm::aStar(goal2d, start2d, grid, nodes2D,
+//    visualization));
 //  }
 
 //  if (Constants::twoD) {
@@ -249,7 +281,8 @@ void Node3D::updateG()
 ////###################################################
 ////                                 COLLISION CHECKING
 ////###################################################
-// bool Node3D::isTraversable(const nav_msgs::OccupancyGrid::ConstPtr& grid, Constants::config* collisionLookup) const {
+// bool Node3D::isTraversable(const nav_msgs::OccupancyGrid::ConstPtr& grid, Constants::config* collisionLookup)
+// const {
 //   int X = (int)x;
 //   int Y = (int)y;
 //   int iX = (int)((x - (long)x) * Constants::positionResolution);

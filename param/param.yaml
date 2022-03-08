@@ -1,6 +1,8 @@
-succ_size : 6
-forward_size : 3
-backward_size : 3
+dist_succ_size : 6
+dist_forward_size : 3
+
+pre_succ_size : 6
+pre_forward_size : 3
 
 
 # delta x、y、theta
@@ -8,6 +10,10 @@ backward_size : 3
 #  距离要除 8.488265397501225  角度要转换为rad
 # 坐标系x为车辆正前方，y为车辆左侧
 
+#两个use不能同时打开
+use_dist_mode : true
+use_new_mode : true
+change_step : true
 
 delta_y : [0, -0.0415893, 0.0415893, 0, -0.0415893, 0.0415893]
 delta_x : [0.7068582, 0.705224, 0.705224, -0.7068582, 0.705224, 0.705224]
@@ -16,5 +22,16 @@ delta_t_rad : [0, 0.1178097, -0.1178097, 0, -0.1178097, 0.1178097]
 #给出距离父节点的距离 方便计算g值
 step_size : [6, 6, 6, 6, 6, 6]
 delta_t_edg : [0, 6.75, -6.75, 0, -6.75, 6.75]
+
+# distance 从大到小  且最后一个为0
+distance : [6, 4, 3, 2, -1]
+value : [1.5, 1.3, 1.2, 0.9, 0.5]
+coef : [1.0, 0.8, 0.8, 1.0, 0.8, 0.8]
+
+max_front_wheel_angle : 0.1178 #rad
+
+
+
+
 
 

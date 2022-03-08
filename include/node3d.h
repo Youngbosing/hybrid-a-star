@@ -6,6 +6,8 @@
 
 #include "constants.h"
 #include "helper.h"
+
+#define DISTANCE_TABLE_SIZE 20
 namespace HybridAStar
 {
 /*!
@@ -66,7 +68,7 @@ public:
     /// get the total estimated cost
     float getC() const
     {
-        return g + h;
+        return g + h * 0.8;
     }
     /// get the index of the node in the 3D array
     int getIdx() const
@@ -146,7 +148,7 @@ public:
 
     // UPDATE METHODS
     /// Updates the cost-so-far for the node x' coming from its predecessor. It also discovers the node.
-    void updateG();
+    void updateG(float step_size);
 
     // CUSTOM OPERATORS
     /// Custom operator to compare nodes. Nodes are equal if their x and y position as well as heading is similar.
@@ -165,6 +167,8 @@ public:
     Node3D* createSuccessor(const int i);
 
     Node3D* new_createSuccessor(const int i);
+
+    Node3D* dist_createSuccessor(const int i, float step_size);
 
     // CONSTANT VALUES
     /// Number of possible directions
@@ -201,12 +205,23 @@ private:
 public:
     static int                succ_size_;
     static int                forward_size_;
-    static int                backward_size_;
+    static int                pre_succ_size_;
+    static int                pre_forward_size_;
+    static int                dist_succ_size_;
+    static int                dist_forward_size_;
     static std::vector<float> delta_x_;
     static std::vector<float> delta_y_;
     static std::vector<float> delta_t_;
     static std::vector<float> step_size_;
     static std::vector<float> delta_t_edg_;
+
+    static std::vector<float> distance_;
+    static std::vector<float> value_;
+    static std::vector<float> coef_;
+    static bool               change_step_;
+    static bool               use_new_mode_;
+    static bool               use_dist_mode_;
+    static float              max_front_wheel_angle_;
 };
 }  // namespace HybridAStar
 #endif  // NODE3D_H
