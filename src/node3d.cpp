@@ -99,24 +99,21 @@ Node3D* Node3D::dist_createSuccessor(const int i, float step_size)
         step_size *= coef_[i];
     }
 
-    float delta_x, delta_y, delta_t;
-    if (i < forward_size_)
+    float delta_x, delta_y;
+    if (i < Node3D::pre_forward_size_)
     {
-        delta_t = max_front_wheel_angle_ - (2 * max_front_wheel_angle_ / (forward_size_ - 1)) * i;
-        delta_x = step_size * fabs(cos(delta_t));
-        delta_y = (-1) * step_size * sin(delta_t);
+        delta_x = step_size * fabs(cos(Node3D::delta_t_[i]));
+        delta_y = (-1) * step_size * sin(Node3D::delta_t_[i]);
     }
     else
     {
-        delta_t =
-            (-1) * max_front_wheel_angle_ + (2 * max_front_wheel_angle_ / (forward_size_ - 1)) * (i - forward_size_);
-        delta_x = step_size * fabs(cos(delta_t)) * (-1);
-        delta_y = step_size * sin(delta_t);
+        delta_x = step_size * fabs(cos(Node3D::delta_t_[i])) * (-1);
+        delta_y = step_size * sin(Node3D::delta_t_[i]);
     }
 
     float xSucc = x + delta_x * cos(t) - delta_y * sin(t);
     float ySucc = y + delta_x * sin(t) + delta_y * cos(t);
-    float tSucc = Helper::normalizeHeadingRad(t + delta_t);
+    float tSucc = Helper::normalizeHeadingRad(t + delta_t_[i]);
 
     return new Node3D(xSucc, ySucc, tSucc, g, 0, this, i);
 }
@@ -135,17 +132,17 @@ void Node3D::updateG(float step_size)
             // penalize change of direction
             if (pred->prim >= forward_size_)
             {
-                g += (step_size * Constants::penaltyTurning *
-                      Constants::penaltyCOD);  // TBD 不能 ＋dx[0]，需要根据实际的距离确定值
+                g += dx[0] * Constants::penaltyTurning *
+                     Constants::penaltyCOD;  // TBD 不能 ＋dx[0]，需要根据实际的距离确定值
             }
             else
             {
-                g += (step_size * Constants::penaltyTurning);
+                g += dx[0] * Constants::penaltyTurning;
             }
         }
         else
         {
-            g += step_size;  // TBD 根据距离取合适的值
+            g += dx[0];  // TBD 根据距离取合适的值
         }
     }
     // reverse driving
@@ -157,17 +154,17 @@ void Node3D::updateG(float step_size)
             // penalize change of direction
             if (pred->prim < forward_size_)
             {
-                g += (step_size * Constants::penaltyTurning * Constants::penaltyReversing *
-                      Constants::penaltyCOD);  // TBD 同上
+                g += dx[0] * Constants::penaltyTurning * Constants::penaltyReversing *
+                     Constants::penaltyCOD;  // TBD 同上
             }
             else
             {
-                g += (step_size * Constants::penaltyTurning * Constants::penaltyReversing);  // TBD
+                g += dx[0] * Constants::penaltyTurning * Constants::penaltyReversing;  // TBD
             }
         }
         else
         {
-            g += (step_size * Constants::penaltyReversing);  // TBD
+            g += dx[0] * Constants::penaltyReversing;  // TBD
         }
     }
 }
