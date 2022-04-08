@@ -135,12 +135,12 @@ void Node3D::updateG(float step_size)
             // penalize change of direction
             if (pred->prim >= forward_size_)
             {
-                g += (step_size * Constants::penaltyTurning *
-                      Constants::penaltyCOD);  // TBD 不能 ＋dx[0]，需要根据实际的距离确定值
+                g += step_size * Constants::penaltyTurning *
+                     Constants::penaltyCOD;  // TBD 不能 ＋dx[0]，需要根据实际的距离确定值
             }
             else
             {
-                g += (step_size * Constants::penaltyTurning);
+                g += step_size * Constants::penaltyTurning;
             }
         }
         else
@@ -157,17 +157,17 @@ void Node3D::updateG(float step_size)
             // penalize change of direction
             if (pred->prim < forward_size_)
             {
-                g += (step_size * Constants::penaltyTurning * Constants::penaltyReversing *
-                      Constants::penaltyCOD);  // TBD 同上
+                g += step_size * Constants::penaltyTurning * Constants::penaltyReversing *
+                     Constants::penaltyCOD;  // TBD 同上
             }
             else
             {
-                g += (step_size * Constants::penaltyTurning * Constants::penaltyReversing);  // TBD
+                g += step_size * Constants::penaltyTurning * Constants::penaltyReversing;  // TBD
             }
         }
         else
         {
-            g += (step_size * Constants::penaltyReversing);  // TBD
+            g += step_size * Constants::penaltyReversing;  // TBD
         }
     }
 }

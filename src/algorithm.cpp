@@ -63,16 +63,17 @@ Node3D* Algorithm::hybridAStar(Node3D& start, const Node3D& goal, Node3D* nodes3
 {
     // DEBUG
     ofstream debugout("/home/holo/catkin_ws/debug/debug.txt", ios::app);
-    // debugout << "x"
-    //          << "\t"
-    //          << "X"
-    //          << "\t"
-    //          << "iX"
-    //          << "y"
-    //          << "\t"
-    //          << "Y"
-    //          << "\t"
-    //          << "iY" << std::endl;
+    ofstream distout("/home/holo/catkin_ws/debug/dist.txt", ios::app);
+    //  debugout << "x"
+    //           << "\t"
+    //           << "X"
+    //           << "\t"
+    //           << "iX"
+    //           << "y"
+    //           << "\t"
+    //           << "Y"
+    //           << "\t"
+    //           << "iY" << std::endl;
 
     // init config
     {
@@ -302,7 +303,7 @@ Node3D* Algorithm::hybridAStar(Node3D& start, const Node3D& goal, Node3D* nodes3
                     step_size = Node3D::value_[index];
 
                     // debug
-                    // debugout << dist_to_obl << "\t" << step_size << std::endl;
+                    distout << (int)dist_to_obl << std::endl;
                 }
 
                 // ______________________________
@@ -395,6 +396,7 @@ Node3D* Algorithm::hybridAStar(Node3D& start, const Node3D& goal, Node3D* nodes3
 
     // debug
     debugout.close();
+    distout.close();
 
     return nullptr;
 }
